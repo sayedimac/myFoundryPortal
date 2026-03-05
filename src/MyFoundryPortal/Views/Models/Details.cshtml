@@ -1,0 +1,83 @@
+@model MyFoundryPortal.ViewModels.DeploymentViewModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="portal-page-header d-flex align-items-center gap-2">
+    <a asp-action="Index" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h1 class="portal-page-title">@Model.Name</h1>
+        <p class="text-muted small mb-0">Deployment Details</p>
+    </div>
+</div>
+
+<div class="portal-page-content">
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-warning small">@ViewData["Error"]</div>
+    }
+
+    <div class="row g-3">
+        <div class="col-md-8">
+            <div class="bg-white rounded border p-4">
+                <h5 class="mb-3 fw-semibold">Deployment Information</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted small">Deployment Name</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Name</dd>
+
+                    <dt class="col-sm-4 text-muted small">Model</dt>
+                    <dd class="col-sm-8">
+                        <span class="portal-badge portal-badge-model">@Model.ModelName</span>
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted small">Version</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.ModelVersion) ? "–" : Model.ModelVersion)</dd>
+
+                    <dt class="col-sm-4 text-muted small">Publisher</dt>
+                    <dd class="col-sm-8">
+                        <span class="portal-badge portal-badge-publisher">@(string.IsNullOrEmpty(Model.ModelPublisher) ? "–" : Model.ModelPublisher)</span>
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted small">Connection</dt>
+                    <dd class="col-sm-8 text-muted">@(string.IsNullOrEmpty(Model.ConnectionName) ? "–" : Model.ConnectionName)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="bg-white rounded border p-4 mb-3">
+                <h6 class="fw-semibold mb-3">SKU</h6>
+                <dl class="row mb-0 small">
+                    <dt class="col-sm-5 text-muted">Name</dt>
+                    <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.SkuName) ? "–" : Model.SkuName)</dd>
+                    <dt class="col-sm-5 text-muted">Capacity</dt>
+                    <dd class="col-sm-7">@(Model.SkuCapacity > 0 ? Model.SkuCapacity.ToString() : "–")</dd>
+                </dl>
+            </div>
+
+            @if (Model.Capabilities.Any())
+            {
+                <div class="bg-white rounded border p-4">
+                    <h6 class="fw-semibold mb-3">Capabilities</h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var cap in Model.Capabilities)
+                        {
+                            <span class="badge bg-light text-secondary border" style="font-size:.75rem;">
+                                @cap.Key
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to Models
+        </a>
+    </div>
+</div>

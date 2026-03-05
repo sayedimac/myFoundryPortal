@@ -1,0 +1,125 @@
+@model MyFoundryPortal.ViewModels.ChatViewModel
+@{
+    ViewData["Title"] = Model.AgentName + " – Playground";
+}
+
+<div class="portal-page-header d-flex align-items-center gap-2">
+    <a asp-action="Index" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div class="flex-grow-1">
+        <h1 class="portal-page-title">@Model.AgentName</h1>
+        <p class="text-muted small mb-0">Playground · <span class="portal-badge portal-badge-model">@Model.AgentModel</span></p>
+    </div>
+    @if (!string.IsNullOrEmpty(Model.ThreadId))
+    {
+        <a asp-action="Playground" asp-route-id="@Model.AgentId"
+           class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-plus me-1"></i>New Thread
+        </a>
+    }
+</div>
+
+<div class="portal-page-content" style="padding-bottom:0;">
+    <div class="row g-3" style="height:calc(100vh - 180px);">
+
+        <!-- Left: Agent config panel -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="bg-white rounded border h-100 overflow-auto p-3">
+                <div class="mb-3">
+                    <div class="small text-muted fw-semibold mb-1 text-uppercase" style="font-size:.7rem;letter-spacing:.05em;">Model</div>
+                    <span class="portal-badge portal-badge-model">@Model.AgentModel</span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.AgentInstructions))
+                {
+                    <div class="mb-3">
+                        <div class="small text-muted fw-semibold mb-1 text-uppercase" style="font-size:.7rem;letter-spacing:.05em;">Instructions</div>
+                        <div class="small text-muted" style="white-space:pre-wrap;font-size:.8rem;">@Model.AgentInstructions</div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.ThreadId))
+                {
+                    <div>
+                        <div class="small text-muted fw-semibold mb-1 text-uppercase" style="font-size:.7rem;letter-spacing:.05em;">Thread ID</div>
+                        <code class="small" style="word-break:break-all;font-size:.75rem;">@Model.ThreadId</code>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Right: Chat pane -->
+        <div class="col-lg-9 d-flex flex-column" style="height:calc(100vh - 180px);">
+            <div class="chat-messages" id="chatMessages">
+                @if (!Model.Messages.Any())
+                {
+                    <div class="chat-empty-state">
+                        <i class="bi bi-chat-dots display-6 opacity-25"></i>
+                        <span>@Model.AgentName</span>
+                        <span class="small">Send a message below to start a conversation with this agent</span>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var msg in Model.Messages)
+                    {
+                        <div class="chat-message @(msg.IsUser ? "user" : "assistant")">
+                            <div class="chat-role">@(msg.IsUser ? "You" : Model.AgentName)</div>
+                            @msg.Text
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="chat-input-area">
+                <form asp-action="Chat" method="post" id="chatForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="agentId" value="@Model.AgentId" />
+                    <input type="hidden" name="threadId" value="@Model.ThreadId" />
+                    <div class="d-flex gap-2 align-items-end">
+                        <textarea name="userMessage" id="userMessage"
+                                  class="form-control"
+                                  rows="2"
+                                  placeholder="Message the agent…"
+                                  style="resize:none;"></textarea>
+                        <button type="submit" class="btn btn-foundry px-3 py-2" id="sendBtn">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Scroll to bottom of chat on load
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Allow Ctrl+Enter / Cmd+Enter to submit
+    const textarea = document.getElementById('userMessage');
+    if (textarea) {
+        textarea.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                document.getElementById('chatForm').submit();
+            }
+        });
+    }
+
+    // Disable button on submit to prevent double-send
+    const chatForm = document.getElementById('chatForm');
+    const sendBtn = document.getElementById('sendBtn');
+    if (chatForm && sendBtn) {
+        chatForm.addEventListener('submit', function () {
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        });
+    }
+</script>
+}

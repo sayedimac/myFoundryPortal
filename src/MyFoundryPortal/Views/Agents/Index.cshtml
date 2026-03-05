@@ -1,0 +1,99 @@
+@model List<MyFoundryPortal.ViewModels.AgentViewModel>
+@{
+    ViewData["Title"] = "Agents";
+}
+
+<div class="portal-page-header d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="portal-page-title"><i class="bi bi-robot me-2 text-muted"></i>Agents</h1>
+        <p class="text-muted small mb-0">Persistent agents registered in your Foundry project</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+        </a>
+        <a asp-action="Create" class="btn btn-sm btn-foundry">
+            <i class="bi bi-plus me-1"></i>New Agent
+        </a>
+    </div>
+</div>
+
+<div class="portal-page-content">
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-warning d-flex align-items-start gap-2">
+            <i class="bi bi-exclamation-triangle mt-1"></i>
+            <div>
+                <strong>Could not load agents.</strong><br/>
+                <span class="small text-muted">@ViewData["Error"]</span>
+            </div>
+        </div>
+    }
+
+    @if (Model.Count == 0 && ViewData["Error"] == null)
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-robot display-4 d-block mb-3 opacity-25"></i>
+            <p class="mb-3">No agents found. Create your first agent to get started.</p>
+            <a asp-action="Create" class="btn btn-foundry">
+                <i class="bi bi-plus me-1"></i>Create Agent
+            </a>
+        </div>
+    }
+    else if (Model.Count > 0)
+    {
+        <div class="row g-3">
+            @foreach (var agent in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="portal-card h-100 d-flex flex-column">
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div class="portal-card-icon flex-shrink-0">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="fw-semibold text-dark text-truncate">@agent.Name</div>
+                                <div class="small text-muted">@agent.Model</div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(agent.Description))
+                        {
+                            <p class="small text-muted mb-2">@agent.Description</p>
+                        }
+
+                        @if (!string.IsNullOrEmpty(agent.Instructions))
+                        {
+                            <p class="small text-muted mb-3 fst-italic" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                                "@agent.Instructions"
+                            </p>
+                        }
+
+                        <div class="mt-auto d-flex gap-2">
+                            <a asp-action="Playground" asp-route-id="@agent.Id"
+                               class="btn btn-sm btn-foundry flex-grow-1">
+                                <i class="bi bi-chat-dots me-1"></i>Playground
+                            </a>
+                            <form asp-action="Delete" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete agent \'@agent.Name\'?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@agent.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+                            <span class="text-muted" style="font-size:.72rem;">
+                                Created @agent.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")
+                            </span>
+                            <span class="text-muted" style="font-size:.72rem;">ID: @agent.Id[..8]…</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

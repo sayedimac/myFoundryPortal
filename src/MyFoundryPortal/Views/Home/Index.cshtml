@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    int deploymentCount = (int)(ViewData["DeploymentCount"] ?? 0);
+    int agentCount = (int)(ViewData["AgentCount"] ?? 0);
+    int connectionCount = (int)(ViewData["ConnectionCount"] ?? 0);
+}
+
+<div class="portal-page-header d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="portal-page-title"><i class="bi bi-house me-2 text-muted"></i>Dashboard</h1>
+        <p class="text-muted small mb-0">Overview of your Azure AI Foundry project</p>
+    </div>
+</div>
+
+<div class="portal-page-content">
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="config-notice mb-4">
+            <h5 class="mb-2"><i class="bi bi-info-circle me-2 text-primary"></i>Configuration Required</h5>
+            <p class="mb-2 text-muted small">
+                Set the following environment variables (or add them to <code>appsettings.json</code> under <code>FoundryPortal</code>):
+            </p>
+            <ul class="mb-0 small text-muted">
+                <li><code>AZURE_AI_PROJECT_ENDPOINT</code> &mdash; Your AI Foundry project endpoint URL</li>
+                <li><code>AZURE_TENANT_ID</code> &mdash; Azure AD tenant ID</li>
+                <li><code>AZURE_CLIENT_ID</code> &mdash; App registration client ID</li>
+                <li><code>AZURE_CLIENT_SECRET</code> &mdash; App registration client secret</li>
+            </ul>
+        </div>
+    }
+
+    <!-- Stat cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon">
+                        <i class="bi bi-grid"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">@deploymentCount</div>
+                        <div class="stat-label">Deployed Models</div>
+                    </div>
+                </div>
+                <a asp-controller="Models" asp-action="Index" class="btn btn-sm btn-outline-secondary mt-3 w-100">View Models</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">@agentCount</div>
+                        <div class="stat-label">Registered Agents</div>
+                    </div>
+                </div>
+                <a asp-controller="Agents" asp-action="Index" class="btn btn-sm btn-outline-secondary mt-3 w-100">View Agents</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon">
+                        <i class="bi bi-plug"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">@connectionCount</div>
+                        <div class="stat-label">Connections</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick actions -->
+    <h5 class="mb-3 text-muted fw-semibold" style="font-size:0.85rem;letter-spacing:.05em;text-transform:uppercase;">Quick Actions</h5>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a asp-controller="Models" asp-action="Index" class="portal-card d-block text-decoration-none">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon flex-shrink-0">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">Browse Models</div>
+                        <div class="text-muted small">Enumerate deployed models in your project</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Agents" asp-action="Create" class="portal-card d-block text-decoration-none">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon flex-shrink-0">
+                        <i class="bi bi-plus-circle"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">Create Agent</div>
+                        <div class="text-muted small">Register a new AI agent with instructions</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Agents" asp-action="Index" class="portal-card d-block text-decoration-none">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon flex-shrink-0">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">Agent Playground</div>
+                        <div class="text-muted small">Chat with your agents interactively</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
