@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Azure;
 using Azure.AI.Agents.Persistent;
 using Azure.AI.Projects;
@@ -73,6 +74,7 @@ public class FoundryService
     public async Task<IReadOnlyList<ModelDeployment>> GetDeploymentsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.deployments.list");
         var results = new List<ModelDeployment>();
         await foreach (var item in _projectClient.Deployments.GetDeploymentsAsync(
             modelPublisher: null,
@@ -85,12 +87,15 @@ public class FoundryService
                 results.Add(modelDep);
             }
         }
+        activity?.SetTag("foundry.deployments.count", results.Count);
         return results;
     }
 
     public async Task<AIProjectDeployment?> GetDeploymentAsync(string name, CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.deployments.get");
+        activity?.SetTag("foundry.deployment.name", name);
         try
         {
             var response = await _projectClient.Deployments.GetDeploymentAsync(name, ct);
@@ -98,6 +103,7 @@ public class FoundryService
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
+            activity?.SetStatus(ActivityStatusCode.Ok, "Not found");
             return null;
         }
     }
@@ -107,18 +113,22 @@ public class FoundryService
     public async Task<IReadOnlyList<PersistentAgent>> GetAgentsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.agents.list");
         var results = new List<PersistentAgent>();
         await foreach (var agent in _agentsClient.Administration.GetAgentsAsync(
             limit: null, order: null, after: null, before: null, cancellationToken: ct))
         {
             results.Add(agent);
         }
+        activity?.SetTag("foundry.agents.count", results.Count);
         return results;
     }
 
     public async Task<PersistentAgent?> GetAgentAsync(string agentId, CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.agents.get");
+        activity?.SetTag("foundry.agent.id", agentId);
         try
         {
             var response = await _agentsClient.Administration.GetAgentAsync(agentId, ct);
@@ -126,6 +136,7 @@ public class FoundryService
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
+            activity?.SetStatus(ActivityStatusCode.Ok, "Not found");
             return null;
         }
     }
@@ -138,6 +149,9 @@ public class FoundryService
         CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.agents.create");
+        activity?.SetTag("foundry.agent.model", model);
+        activity?.SetTag("foundry.agent.name", name);
         var response = await _agentsClient.Administration.CreateAgentAsync(
             model: model,
             name: name,
@@ -150,12 +164,15 @@ public class FoundryService
             responseFormat: null,
             metadata: null,
             cancellationToken: ct);
+        activity?.SetTag("foundry.agent.id", response.Value.Id);
         return response.Value;
     }
 
     public async Task<bool> DeleteAgentAsync(string agentId, CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.agents.delete");
+        activity?.SetTag("foundry.agent.id", agentId);
         try
         {
             var response = await _agentsClient.Administration.DeleteAgentAsync(agentId, ct);
@@ -163,6 +180,7 @@ public class FoundryService
         }
         catch (RequestFailedException)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Delete failed");
             return false;
         }
     }
@@ -176,6 +194,9 @@ public class FoundryService
         CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.chat");
+        activity?.SetTag("foundry.agent.id", agentId);
+        activity?.SetTag("foundry.chat.has_existing_thread", existingThreadId != null);
         // Create or reuse a thread
         PersistentAgentThread thread;
         if (!string.IsNullOrWhiteSpace(existingThreadId))
@@ -189,6 +210,7 @@ public class FoundryService
                 messages: null, toolResources: null, metadata: null, cancellationToken: ct);
             thread = createResp.Value;
         }
+        activity?.SetTag("foundry.thread.id", thread.Id);
 
         // Add the user message
         await _agentsClient.Messages.CreateMessageAsync(
@@ -216,6 +238,7 @@ public class FoundryService
 
         if (run.Status == RunStatus.Failed)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, run.LastError?.Message ?? "unknown error");
             return $"[Run failed: {run.LastError?.Message ?? "unknown error"}]";
         }
 
@@ -247,6 +270,9 @@ public class FoundryService
         CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.chat.with_thread");
+        activity?.SetTag("foundry.agent.id", agentId);
+        activity?.SetTag("foundry.chat.has_existing_thread", existingThreadId != null);
         // Create or reuse a thread
         string threadId;
         if (!string.IsNullOrWhiteSpace(existingThreadId))
@@ -259,6 +285,7 @@ public class FoundryService
                 messages: null, toolResources: null, metadata: null, cancellationToken: ct);
             threadId = createResp.Value.Id;
         }
+        activity?.SetTag("foundry.thread.id", threadId);
 
         // Add the user message
         await _agentsClient.Messages.CreateMessageAsync(
@@ -286,6 +313,7 @@ public class FoundryService
 
         if (run.Status == RunStatus.Failed)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, run.LastError?.Message ?? "unknown error");
             return (threadId, $"[Run failed: {run.LastError?.Message ?? "unknown error"}]");
         }
 
@@ -339,12 +367,14 @@ public class FoundryService
     public async Task<IReadOnlyList<AIProjectConnection>> GetConnectionsAsync(CancellationToken ct = default)
     {
         EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.connections.list");
         var results = new List<AIProjectConnection>();
         await foreach (var conn in _projectClient.Connections.GetConnectionsAsync(
             connectionType: null, defaultConnection: null, cancellationToken: ct))
         {
             results.Add(conn);
         }
+        activity?.SetTag("foundry.connections.count", results.Count);
         return results;
     }
 }

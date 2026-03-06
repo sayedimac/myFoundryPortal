@@ -1,7 +1,47 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using MyFoundryPortal.Services;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ── Telemetry ─────────────────────────────────────────────────────────────
+// Wire up OpenTelemetry tracing so every request and every call to Azure AI
+// Foundry (agents, deployments, chat) is automatically recorded.
+//
+// When APPLICATIONINSIGHTS_CONNECTION_STRING is set the data flows to Azure
+// Application Insights; otherwise traces are written to the console so they
+// are visible during local development and demos.
+
+var appInsightsConnectionString =
+    builder.Configuration["ApplicationInsights:ConnectionString"]
+    ?? Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+
+var openTelemetryBuilder = builder.Services
+    .AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddSource(FoundryTelemetry.ActivitySourceName) // custom Foundry operations
+            .AddAspNetCoreInstrumentation()                 // incoming HTTP requests
+            .AddHttpClientInstrumentation();                // outbound calls to Azure APIs
+
+        // In development (or when no Azure Monitor connection string is set),
+        // emit traces to the console so they can be inspected immediately.
+        if (string.IsNullOrWhiteSpace(appInsightsConnectionString)
+            || builder.Environment.IsDevelopment())
+        {
+            tracing.AddConsoleExporter();
+        }
+    });
+
+if (!string.IsNullOrWhiteSpace(appInsightsConnectionString))
+{
+    // UseAzureMonitor integrates traces, metrics AND logs into Application Insights.
+    openTelemetryBuilder.UseAzureMonitor(o =>
+        o.ConnectionString = appInsightsConnectionString);
+}
+
+// ── MVC ───────────────────────────────────────────────────────────────────
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

@@ -1,0 +1,187 @@
+@model MyFoundryPortal.ViewModels.TelemetryViewModel
+@{
+    ViewData["Title"] = "Telemetry";
+}
+
+<div class="portal-page-header d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="portal-page-title"><i class="bi bi-activity me-2 text-muted"></i>Telemetry</h1>
+        <p class="text-muted small mb-0">OpenTelemetry configuration and Foundry tracing spans</p>
+    </div>
+</div>
+
+<div class="portal-page-content">
+
+    <!-- Status cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon @(Model.IsAzureMonitorEnabled ? "" : "opacity-50")">
+                        <i class="bi bi-cloud-check"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="font-size:1rem;">
+                            @if (Model.IsAzureMonitorEnabled)
+                            {
+                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Enabled</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted"><i class="bi bi-dash-circle me-1"></i>Not configured</span>
+                            }
+                        </div>
+                        <div class="stat-label">Azure Monitor (App Insights)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon @(Model.IsConsoleExporterEnabled ? "" : "opacity-50")">
+                        <i class="bi bi-terminal"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="font-size:1rem;">
+                            @if (Model.IsConsoleExporterEnabled)
+                            {
+                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Enabled</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted"><i class="bi bi-dash-circle me-1"></i>Disabled</span>
+                            }
+                        </div>
+                        <div class="stat-label">Console Exporter</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="font-size:0.75rem; font-weight:600;">@Model.TargetFramework</div>
+                        <div class="stat-label">Runtime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration guide -->
+    <div class="portal-card mb-4">
+        <h5 class="fw-semibold mb-3"><i class="bi bi-gear me-2 text-muted"></i>Configuration</h5>
+        <p class="text-muted small mb-3">
+            This portal uses <strong>OpenTelemetry</strong> to emit distributed traces for every Azure AI Foundry
+            operation. Traces are automatically correlated with the incoming HTTP request and propagated to any
+            downstream service that supports the W3C TraceContext standard.
+        </p>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="bg-light rounded p-3 h-100">
+                    <h6 class="fw-semibold mb-2"><i class="bi bi-cloud me-1"></i>Azure Monitor / Application Insights</h6>
+                    <p class="small text-muted mb-2">
+                        Set one of the following to send all traces, metrics and logs to Application Insights:
+                    </p>
+                    <ul class="small text-muted mb-0">
+                        <li>Environment variable: <code>APPLICATIONINSIGHTS_CONNECTION_STRING</code></li>
+                        <li><code>appsettings.json</code> key: <code>ApplicationInsights:ConnectionString</code></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="bg-light rounded p-3 h-100">
+                    <h6 class="fw-semibold mb-2"><i class="bi bi-terminal me-1"></i>Console Exporter (dev / demo)</h6>
+                    <p class="small text-muted mb-0">
+                        When no Application Insights connection string is set, <em>or</em> when the
+                        <code>ASPNETCORE_ENVIRONMENT</code> is <code>Development</code>, traces are written to
+                        <strong>standard output</strong> so you can see them directly in your terminal or container
+                        logs — ideal for demos and local development.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Span catalog -->
+    <h5 class="mb-3 text-muted fw-semibold" style="font-size:0.85rem;letter-spacing:.05em;text-transform:uppercase;">
+        Foundry Span Catalog &mdash; ActivitySource: <code>@Model.ActivitySourceName</code>
+    </h5>
+
+    <div class="bg-white rounded border">
+        <table class="portal-table">
+            <thead>
+                <tr>
+                    <th>Operation Name (span)</th>
+                    <th>Description</th>
+                    <th>Tags / Attributes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var span in Model.SpanExamples)
+                {
+                    <tr>
+                        <td>
+                            <code class="small">@span.OperationName</code>
+                        </td>
+                        <td class="small text-muted">@span.Description</td>
+                        <td>
+                            @foreach (var tag in span.Tags)
+                            {
+                                <span class="badge bg-light text-secondary border me-1" style="font-size:.7rem;">@tag</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- What is instrumented -->
+    <div class="portal-card mt-4">
+        <h5 class="fw-semibold mb-3"><i class="bi bi-diagram-3 me-2 text-muted"></i>What is automatically instrumented</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-globe text-muted mt-1"></i>
+                    <div>
+                        <div class="fw-semibold small">ASP.NET Core requests</div>
+                        <div class="text-muted" style="font-size:.8rem;">
+                            Every incoming HTTP request creates a root span with method, URL, and status code.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-arrow-left-right text-muted mt-1"></i>
+                    <div>
+                        <div class="fw-semibold small">Outbound HTTP (Azure SDK)</div>
+                        <div class="text-muted" style="font-size:.8rem;">
+                            All calls from the Azure AI Projects &amp; Agents SDK to the Foundry REST APIs are
+                            traced as child spans, including latency and HTTP status.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-robot text-muted mt-1"></i>
+                    <div>
+                        <div class="fw-semibold small">Foundry operations</div>
+                        <div class="text-muted" style="font-size:.8rem;">
+                            Named spans (see table above) wrap each high-level Foundry operation so you can
+                            correlate user actions with underlying API calls in your observability backend.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
