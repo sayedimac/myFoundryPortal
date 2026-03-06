@@ -54,21 +54,17 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="portal-nav-link" href="#">
-                        <i class="bi bi-tools portal-nav-icon"></i>
-                        <span class="portal-nav-label">Tools</span>
+                    <a class="portal-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Connections" ? "active" : "")"
+                       asp-controller="Connections" asp-action="Index">
+                        <i class="bi bi-plug portal-nav-icon"></i>
+                        <span class="portal-nav-label">Connections</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="portal-nav-link" href="#">
-                        <i class="bi bi-book portal-nav-icon"></i>
-                        <span class="portal-nav-label">Knowledge</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="portal-nav-link" href="#">
-                        <i class="bi bi-database portal-nav-icon"></i>
-                        <span class="portal-nav-label">Data</span>
+                    <a class="portal-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Evaluations" ? "active" : "")"
+                       asp-controller="Evaluations" asp-action="Index">
+                        <i class="bi bi-bar-chart portal-nav-icon"></i>
+                        <span class="portal-nav-label">Evaluations</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -76,18 +72,6 @@
                        asp-controller="Telemetry" asp-action="Index">
                         <i class="bi bi-activity portal-nav-icon"></i>
                         <span class="portal-nav-label">Telemetry</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="portal-nav-link" href="#">
-                        <i class="bi bi-bar-chart portal-nav-icon"></i>
-                        <span class="portal-nav-label">Evaluations</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="portal-nav-link" href="#">
-                        <i class="bi bi-shield-check portal-nav-icon"></i>
-                        <span class="portal-nav-label">Guardrails</span>
                     </a>
                 </li>
             </ul>

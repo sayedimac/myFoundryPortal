@@ -1,0 +1,112 @@
+@model List<MyFoundryPortal.ViewModels.ConnectionViewModel>
+@{
+    ViewData["Title"] = "Connections";
+}
+
+<div class="portal-page-header d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="portal-page-title"><i class="bi bi-plug me-2 text-muted"></i>Connections</h1>
+        <p class="text-muted small mb-0">External service connections configured in your Foundry project</p>
+    </div>
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+    </a>
+</div>
+
+<div class="portal-page-content">
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-warning d-flex align-items-start gap-2">
+            <i class="bi bi-exclamation-triangle mt-1"></i>
+            <div>
+                <strong>Could not load connections.</strong><br/>
+                <span class="small text-muted">@ViewData["Error"]</span>
+            </div>
+        </div>
+    }
+
+    @if (Model.Count == 0 && ViewData["Error"] == null)
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-plug display-4 d-block mb-3 opacity-25"></i>
+            <p>No connections found in this project.</p>
+            <p class="small">
+                Add connections in <a href="https://ai.azure.com" target="_blank" class="text-decoration-none">Azure AI Foundry</a>
+                under <strong>Management → Connections</strong>.
+            </p>
+        </div>
+    }
+    else if (Model.Count > 0)
+    {
+        <div class="row g-3">
+            @foreach (var conn in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="portal-card h-100 d-flex flex-column">
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div class="portal-card-icon flex-shrink-0">
+                                @{
+                                    var iconClass = conn.ConnectionType switch
+                                    {
+                                        "AzureOpenAI" => "bi-stars",
+                                        "AzureAISearch" => "bi-search",
+                                        "AzureAIServices" => "bi-cpu",
+                                        "AzureBlobStorage" => "bi-archive",
+                                        "Serverless" => "bi-lightning-charge",
+                                        _ => "bi-plug",
+                                    };
+                                }
+                                <i class="bi @iconClass"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="fw-semibold text-dark text-truncate">@conn.Name</div>
+                                <div class="small text-muted">@conn.ConnectionType</div>
+                            </div>
+                            @if (conn.IsDefault)
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-auto" style="font-size:.7rem;">Default</span>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(conn.Target))
+                        {
+                            <p class="small text-muted mb-2 text-truncate" title="@conn.Target">
+                                <i class="bi bi-link-45deg me-1"></i>@conn.Target
+                            </p>
+                        }
+
+                        <div class="mt-auto pt-2 d-flex align-items-center justify-content-between">
+                            <span class="badge bg-light text-secondary border" style="font-size:.7rem;">
+                                <i class="bi bi-key me-1"></i>@conn.AuthType
+                            </span>
+                            <a asp-action="Details" asp-route-name="@conn.Name"
+                               class="btn btn-sm btn-outline-secondary">Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Info panel about connections -->
+    <div class="config-notice mt-4">
+        <h6 class="fw-semibold mb-2"><i class="bi bi-info-circle me-1 text-primary"></i>About Connections</h6>
+        <p class="small text-muted mb-2">
+            Connections link your AI Foundry project to external Azure services such as Azure OpenAI, Azure AI Search,
+            and Azure Blob Storage. Agents and pipelines can reference these connections by name to access
+            grounding data, vector stores, or additional model endpoints.
+        </p>
+        <div class="row g-2 small text-muted">
+            <div class="col-md-4">
+                <i class="bi bi-stars text-warning me-1"></i><strong>Azure OpenAI</strong> – Model inference &amp; embeddings
+            </div>
+            <div class="col-md-4">
+                <i class="bi bi-search text-primary me-1"></i><strong>Azure AI Search</strong> – Vector &amp; hybrid search for RAG
+            </div>
+            <div class="col-md-4">
+                <i class="bi bi-archive text-secondary me-1"></i><strong>Azure Blob Storage</strong> – File &amp; document storage
+            </div>
+        </div>
+    </div>
+</div>

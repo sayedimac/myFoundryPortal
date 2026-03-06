@@ -377,4 +377,21 @@ public class FoundryService
         activity?.SetTag("foundry.connections.count", results.Count);
         return results;
     }
+
+    public async Task<AIProjectConnection?> GetConnectionAsync(string name, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        using var activity = FoundryTelemetry.Source.StartActivity("foundry.connections.get");
+        activity?.SetTag("foundry.connection.name", name);
+        try
+        {
+            var response = await _projectClient.Connections.GetConnectionAsync(name, includeCredentials: false, cancellationToken: ct);
+            return response.Value;
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            activity?.SetStatus(ActivityStatusCode.Ok, "Not found");
+            return null;
+        }
+    }
 }
