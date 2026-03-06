@@ -1,0 +1,207 @@
+@model MyFoundryPortal.ViewModels.EvaluationsViewModel
+@{
+    ViewData["Title"] = "Evaluations";
+    var categories = Model.Metrics.Select(m => m.Category).Distinct().ToList();
+}
+
+<div class="portal-page-header d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="portal-page-title"><i class="bi bi-bar-chart me-2 text-muted"></i>Evaluations</h1>
+        <p class="text-muted small mb-0">Measure and improve the quality, safety, and groundedness of your AI models</p>
+    </div>
+    <a href="https://learn.microsoft.com/en-us/azure/ai-studio/concepts/evaluation-approach-gen-ai"
+       target="_blank" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Docs
+    </a>
+</div>
+
+<div class="portal-page-content">
+
+    <!-- Context summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon">
+                        <i class="bi bi-grid"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">@Model.DeploymentCount</div>
+                        <div class="stat-label">Deployments available to evaluate</div>
+                    </div>
+                </div>
+                <a asp-controller="Models" asp-action="Index" class="btn btn-sm btn-outline-secondary mt-3 w-100">View Models</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">@Model.AgentCount</div>
+                        <div class="stat-label">Agents you can evaluate</div>
+                    </div>
+                </div>
+                <a asp-controller="Agents" asp-action="Index" class="btn btn-sm btn-outline-secondary mt-3 w-100">View Agents</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">@Model.Metrics.Count</div>
+                        <div class="stat-label">Built-in evaluation metrics</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What is evaluation? -->
+    <div class="portal-card mb-4">
+        <h5 class="fw-semibold mb-3"><i class="bi bi-lightbulb me-2 text-warning"></i>What is AI Evaluation?</h5>
+        <p class="text-muted small mb-3">
+            Evaluation measures how well your deployed models and agents perform across dimensions like
+            <strong>output quality</strong>, <strong>grounding</strong>, and <strong>safety</strong>.
+            Running evaluations before promoting a model to production is a best practice required for
+            responsible AI deployment and a core skill assessed in the
+            <a href="https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-engineer/?practice-assessment-type=certification"
+               target="_blank" class="text-decoration-none">Azure AI Engineer (AI-102)</a> certification.
+        </p>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-1-circle text-primary mt-1"></i>
+                    <div>
+                        <div class="fw-semibold small">Prepare a dataset</div>
+                        <div class="text-muted" style="font-size:.8rem;">
+                            Collect question–answer pairs (optionally with ground-truth context for RAG scenarios)
+                            and upload them as a JSONL file to your Foundry project.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-2-circle text-primary mt-1"></i>
+                    <div>
+                        <div class="fw-semibold small">Configure evaluators</div>
+                        <div class="text-muted" style="font-size:.8rem;">
+                            Pick the metrics you care about — quality, RAG grounding, or safety —
+                            and specify which model deployment should act as the judge.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-3-circle text-primary mt-1"></i>
+                    <div>
+                        <div class="fw-semibold small">Run &amp; review results</div>
+                        <div class="text-muted" style="font-size:.8rem;">
+                            The evaluation job scores each response and aggregates the results into a report
+                            you can track over time to compare model versions or prompt changes.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics by category -->
+    @foreach (var category in categories)
+    {
+        var metricsInCategory = Model.Metrics.Where(m => m.Category == category).ToList();
+        var categoryColor = category switch
+        {
+            "Quality" => "text-primary",
+            "RAG / Grounding" => "text-success",
+            "Safety" => "text-danger",
+            _ => "text-muted",
+        };
+        var categoryIcon = category switch
+        {
+            "Quality" => "bi-star",
+            "RAG / Grounding" => "bi-pin-map",
+            "Safety" => "bi-shield-check",
+            _ => "bi-check2",
+        };
+
+        <h5 class="mb-3 text-muted fw-semibold" style="font-size:0.85rem;letter-spacing:.05em;text-transform:uppercase;">
+            <i class="bi @categoryIcon @categoryColor me-1"></i>@category Metrics
+        </h5>
+        <div class="row g-3 mb-4">
+            @foreach (var metric in metricsInCategory)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="portal-card h-100">
+                        <div class="d-flex align-items-start gap-3 mb-2">
+                            <div class="portal-card-icon flex-shrink-0">
+                                <i class="bi @metric.Icon"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold text-dark">@metric.Name</div>
+                                <div class="small text-muted">Score: @metric.ScoreRange</div>
+                            </div>
+                        </div>
+                        <p class="small text-muted mb-0">@metric.Description</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- SDK code sample -->
+    <div class="portal-card mb-4">
+        <h5 class="fw-semibold mb-3"><i class="bi bi-code-slash me-2 text-muted"></i>SDK Code Sample</h5>
+        <p class="small text-muted mb-3">
+            The following snippet shows how to run a local evaluation with the
+            <a href="https://www.nuget.org/packages/Azure.AI.Projects/2.0.0-beta.1" target="_blank" class="text-decoration-none">
+                Azure.AI.Projects SDK</a>:
+        </p>
+        <pre class="bg-light rounded p-3 small mb-0" style="overflow-x:auto;"><code>// Create an evaluation using the AI Projects SDK (v2.0.0-beta+)
+var client = new AIProjectClient(new Uri(projectEndpoint), credential);
+
+// Define evaluators
+var evaluators = new Dictionary&lt;string, EvaluatorConfiguration&gt;
+{
+    ["coherence"]  = new EvaluatorConfiguration(EvaluatorIds.Coherence),
+    ["relevance"]  = new EvaluatorConfiguration(EvaluatorIds.Relevance),
+    ["groundedness"] = new EvaluatorConfiguration(EvaluatorIds.Groundedness),
+};
+
+// Point at a JSONL dataset already uploaded to the project
+var inputDataset = new InputDataset(dataUri: new Uri("azureml://..."), dataType: "uri_file");
+
+// Submit the evaluation job
+var evaluation = await client.Evaluations.CreateEvaluationAsync(new EvaluationSchedule(
+    displayName: "my-eval-run",
+    data: inputDataset,
+    evaluators: evaluators,
+    modelConfig: new AzureOpenAIModelConfiguration
+    {
+        AzureDeployment = "gpt-4o",          // judge model
+        AzureEndpoint = new Uri(openAiEndpoint),
+    }
+));
+
+Console.WriteLine($"Evaluation created: {evaluation.Value.Id}");</code></pre>
+    </div>
+
+    <!-- Run in Azure AI Studio -->
+    <div class="config-notice">
+        <h6 class="fw-semibold mb-2"><i class="bi bi-cloud me-1 text-primary"></i>Run Evaluations in Azure AI Foundry</h6>
+        <p class="small text-muted mb-2">
+            For a no-code experience, use <strong>Azure AI Foundry → Evaluate</strong> to run and compare
+            evaluation runs, visualise metric trends, and set pass/fail thresholds for your CI/CD pipeline.
+        </p>
+        <a href="https://ai.azure.com" target="_blank" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Open Azure AI Foundry
+        </a>
+    </div>
+</div>

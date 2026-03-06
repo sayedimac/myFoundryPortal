@@ -81,8 +81,14 @@ public class TelemetryController : Controller
                 new TelemetrySpanExample
                 {
                     OperationName = "foundry.connections.list",
-                    Description = "Emitted when the dashboard lists project connections.",
+                    Description = "Emitted when the dashboard or Connections page lists project connections.",
                     Tags = ["foundry.connections.count"],
+                },
+                new TelemetrySpanExample
+                {
+                    OperationName = "foundry.connections.get",
+                    Description = "Emitted when a specific connection is fetched by name.",
+                    Tags = ["foundry.connection.name"],
                 },
             ],
         };

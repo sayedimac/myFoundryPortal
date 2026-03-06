@@ -1,6 +1,7 @@
 # MyFoundryPortal
 
-A lightweight MVP demo of the **Azure AI Foundry Portal**, built with ASP.NET Core MVC and the [Azure AI Projects SDK](https://www.nuget.org/packages/Azure.AI.Projects) (v1.1.0) + [Azure AI Agents Persistent SDK](https://www.nuget.org/packages/Azure.AI.Agents.Persistent) (v1.1.0).
+A demo app showcasing the **Azure AI Foundry SDK** for the [Azure AI Engineer (AI-102)](https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-engineer/?practice-assessment-type=certification) certification course.  
+Built with ASP.NET Core MVC and the [Azure AI Projects SDK](https://www.nuget.org/packages/Azure.AI.Projects) (v1.1.0) + [Azure AI Agents Persistent SDK](https://www.nuget.org/packages/Azure.AI.Agents.Persistent) (v1.1.0).
 
 ---
 
@@ -8,16 +9,19 @@ A lightweight MVP demo of the **Azure AI Foundry Portal**, built with ASP.NET Co
 
 | Feature | Description |
 |---|---|
-| **Models** | Enumerate model deployments in your AI Foundry project |
-| **Agents** | List, create, and delete persistent agents |
-| **Playground** | Chat interactively with any registered agent |
-| **Dashboard** | At-a-glance counts for deployments, agents, and connections |
+| **Dashboard** | At-a-glance counts for deployments, agents, and connections with quick-action links |
+| **Models** | Enumerate model deployments in your AI Foundry project with full detail view |
+| **Agents** | List, create, and delete persistent agents backed by any deployed model |
+| **Playground** | Chat interactively with any registered agent using persistent threads |
+| **Connections** | Browse all project connections (Azure OpenAI, AI Search, Blob Storage, etc.) with details |
+| **Evaluations** | Learn evaluation concepts and metrics (quality, RAG grounding, safety) with an SDK code sample |
+| **Telemetry** | OpenTelemetry tracing configuration and span catalog for all Foundry operations |
 
 ---
 
 ## Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10)
 - An **Azure AI Foundry** project
 - An **App Registration** in Azure AD with access to the Foundry project (or Managed Identity / Azure CLI credentials)
 
@@ -81,22 +85,28 @@ Open https://localhost:7259 (or http://localhost:5007) in your browser.
 ```
 src/MyFoundryPortal/
 ├── Controllers/
-│   ├── HomeController.cs       # Dashboard
-│   ├── ModelsController.cs     # Model deployments (list + details)
-│   └── AgentsController.cs     # Agents (list, create, delete, playground)
+│   ├── HomeController.cs           # Dashboard
+│   ├── ModelsController.cs         # Model deployments (list + details)
+│   ├── AgentsController.cs         # Agents (list, create, delete, playground/chat)
+│   ├── ConnectionsController.cs    # Project connections (list + details)
+│   ├── EvaluationsController.cs    # Evaluation metrics demo page
+│   └── TelemetryController.cs      # OpenTelemetry configuration page
 ├── Services/
-│   └── FoundryService.cs       # Wraps AIProjectClient + PersistentAgentsClient
+│   └── FoundryService.cs           # Wraps AIProjectClient + PersistentAgentsClient
 ├── ViewModels/
-│   ├── DeploymentViewModel.cs
-│   └── AgentViewModel.cs       # AgentViewModel, CreateAgentViewModel, ChatViewModel
+│   ├── AgentViewModel.cs           # AgentViewModel, CreateAgentViewModel, ChatViewModel
+│   ├── ConnectionViewModel.cs      # ConnectionViewModel
+│   ├── DeploymentViewModel.cs      # DeploymentViewModel
+│   ├── EvaluationsViewModel.cs     # EvaluationsViewModel + EvaluationMetricInfo
+│   └── TelemetryViewModel.cs       # TelemetryViewModel + TelemetrySpanExample
 ├── Views/
-│   ├── Home/Index.cshtml       # Dashboard
-│   ├── Models/Index.cshtml     # Model list
-│   ├── Models/Details.cshtml   # Model detail
-│   ├── Agents/Index.cshtml     # Agent list
-│   ├── Agents/Create.cshtml    # Create agent form
-│   └── Agents/Playground.cshtml # Chat playground
-└── wwwroot/css/portal.css      # Foundry-style UI theme
+│   ├── Home/Index.cshtml           # Dashboard
+│   ├── Models/{Index,Details}      # Model list & detail
+│   ├── Agents/{Index,Create,Playground}  # Agent management & chat
+│   ├── Connections/{Index,Details} # Connection list & detail
+│   ├── Evaluations/Index.cshtml    # Evaluation metrics & SDK demo
+│   └── Telemetry/Index.cshtml      # Telemetry configuration
+└── wwwroot/css/portal.css          # Foundry-style UI theme
 ```
 
 ---
@@ -106,3 +116,4 @@ src/MyFoundryPortal/
 - [Azure.AI.Projects NuGet](https://www.nuget.org/packages/Azure.AI.Projects)
 - [Azure.AI.Agents.Persistent NuGet](https://www.nuget.org/packages/Azure.AI.Agents.Persistent)
 - [Azure AI Projects .NET API docs](https://learn.microsoft.com/en-us/dotnet/api/azure.ai.projects)
+- [Azure AI Engineer Certification (AI-102)](https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-engineer/?practice-assessment-type=certification)

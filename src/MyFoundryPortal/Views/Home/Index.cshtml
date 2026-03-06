@@ -71,6 +71,7 @@
                         <div class="stat-label">Connections</div>
                     </div>
                 </div>
+                <a asp-controller="Connections" asp-action="Index" class="btn btn-sm btn-outline-secondary mt-3 w-100">View Connections</a>
             </div>
         </div>
     </div>
@@ -113,6 +114,45 @@
                     <div>
                         <div class="fw-semibold text-dark">Agent Playground</div>
                         <div class="text-muted small">Chat with your agents interactively</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Connections" asp-action="Index" class="portal-card d-block text-decoration-none">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon flex-shrink-0">
+                        <i class="bi bi-plug"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">View Connections</div>
+                        <div class="text-muted small">Explore linked Azure services (OpenAI, Search, Storage)</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Evaluations" asp-action="Index" class="portal-card d-block text-decoration-none">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon flex-shrink-0">
+                        <i class="bi bi-bar-chart"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">Evaluations</div>
+                        <div class="text-muted small">Measure quality, groundedness, and safety</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Telemetry" asp-action="Index" class="portal-card d-block text-decoration-none">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="portal-card-icon flex-shrink-0">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">Telemetry</div>
+                        <div class="text-muted small">OpenTelemetry tracing and Azure Monitor integration</div>
                     </div>
                 </div>
             </a>
