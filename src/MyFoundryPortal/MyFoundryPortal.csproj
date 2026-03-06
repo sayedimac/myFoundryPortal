@@ -10,6 +10,7 @@
     <PackageReference Include="Azure.AI.Agents.Persistent" Version="1.1.0" />
     <PackageReference Include="Azure.AI.Projects" Version="1.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.18.0" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="*" />
   </ItemGroup>
 
 </Project>
