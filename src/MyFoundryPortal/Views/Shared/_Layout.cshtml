@@ -72,6 +72,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="portal-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Telemetry" ? "active" : "")"
+                       asp-controller="Telemetry" asp-action="Index">
+                        <i class="bi bi-activity portal-nav-icon"></i>
+                        <span class="portal-nav-label">Telemetry</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="portal-nav-link" href="#">
                         <i class="bi bi-bar-chart portal-nav-icon"></i>
                         <span class="portal-nav-label">Evaluations</span>
