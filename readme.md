@@ -1,4 +1,4 @@
-# MyFoundryPortal
+# MyFoundryPortal Demo App
 
 A demo app showcasing the **Azure AI Foundry SDK** for the [Azure AI Engineer (AI-102)](https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-engineer/?practice-assessment-type=certification) certification course.  
 Built with ASP.NET Core MVC and the [Azure AI Projects SDK](https://www.nuget.org/packages/Azure.AI.Projects) (v1.1.0) + [Azure AI Agents Persistent SDK](https://www.nuget.org/packages/Azure.AI.Agents.Persistent) (v1.1.0).
